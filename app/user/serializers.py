@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model, authenticate
-from rest_framework import Serializers
+from rest_framework import serializers
 from django.utils.translation import ugettext_lazy as _
 
-class UserSerializer(Serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     """ Serializers for the user object """
 
     class Meta:
@@ -26,7 +26,7 @@ class UserSerializer(Serializers.ModelSerializer):
             user.save()
         return user
 
-    class AuthTokenSerializer(Serializers.serializer):
+    class AuthTokenSerializer(serializers.Serializer):
         """ Serializer for the authentication object """
         email = serializers.CharField()
         password = serializers.CharField(

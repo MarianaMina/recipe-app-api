@@ -4,7 +4,7 @@ from django.urls import reverse
 from restframework.test import APIClient
 from restframework import status
 
-CREATE_USER_URL = reverse('url:create')
+CREATE_USER_URL = reverse('user:create')
 TOKEN_URL = reverse('user:token')
 ME_URL = reverse('user:me')
 
@@ -23,7 +23,7 @@ class PublicUserApiTests(TestCase):
         payload = {
             'email':'test@gmail.com',
             'password':'testpass',
-            'name':'Test name'
+            'name':'Test name',
         }
         # make post request for creating users
         res = self.client.post(CREATE_USER_URL,payload)
@@ -119,4 +119,4 @@ class PrivateUserApiTests(TestCase):
         self.user.refresh_from_db()
         self.assertEqual(self.user.name,payload['name'])
         self.assertTrue(self.user.check_password(payload['password']))
-        self.asserEqual(res.status_code,status.HTTP_200_OK)
+        self.assertEqual(res.status_code,status.HTTP_200_OK)

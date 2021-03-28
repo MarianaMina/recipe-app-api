@@ -6,17 +6,17 @@ from rest_framework.test import APIClient
 from core.models import Tag
 from recipe.serializers import TagSerializer
 
-TAG_URL = reverse('recipe:tag-list')
+TAGS_URL = reverse('recipe:tag-list')
 
-class PublicTagApiTests(TestCase):
+class PublicTagsApiTests(TestCase):
     """" Test the publicity available tags API"""
     def setUp(self):
         self.client = APIClient()
 
     def test_login_required(self):
         """ Test login is required for retrieving tags """
-        res = self.client.get(TAG_URL)
-        self.assertEqual(res.status_code, status.HTTP_400_UNAUTHORIZED)
+        res = self.client.get(TAGS_URL)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 class PrivateTagsApiTests(TestCase):
     """" Test the authorized user tag API """
@@ -32,7 +32,7 @@ class PrivateTagsApiTests(TestCase):
         """ Test retrieving tags """
         Tag.objects.create(user=self.user, name='vegan')
         Tag.objects.create(user=self.user, name='dessert')
-        res=self.client.get(TAG_URL)
+        res=self.client.get(TAGS_URL)
         tags=Tag.objects.all().order_by('-name')
         serializer = TagSerializer(tags,many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -44,8 +44,9 @@ class PrivateTagsApiTests(TestCase):
             'other@gmail.com',
             'testpass'
         )
-        Tag.objects.create(user=self.user,name='Comfort food')
-        res=self.client.get(TAG_URL)
+        Tag.objects.create(user=user2,name='Fruity')
+        tag = Tag.objects.create(user=self.user,name='Comfort food')
+        res=self.client.get(TAGS_URL)
         self.assertEqual(res.status_code,status.HTTP_200_OK)
-        self.assertEqual(len(res_data),1)
-        self.assertEqual(res_data[0]['name'],tag_name)
+        self.assertEqual(len(res.data),1)
+        self.assertEqual(res.data[0]['name'],tag.name)

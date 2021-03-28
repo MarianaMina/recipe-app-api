@@ -11,7 +11,7 @@ class Command(BaseCommand):
         db_conn=None
         while not db_conn:
             try:
-                db_conn = Connections['default']
+                db_conn = connections['default']
             except OperationalError:
                 self.stdout.write('db unavailable')
                 time.sleep(1)

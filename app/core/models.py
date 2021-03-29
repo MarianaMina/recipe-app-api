@@ -10,7 +10,7 @@ class UserManager(BaseUserManager):
         """ Creates and saves new user """
         if not email:
             raise ValueError('Users must have an email address')
-        user = self.model(self.normalize_email(email), **extra_fields)
+        user = self.model(email=self.normalize_email(email), **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
 
@@ -39,7 +39,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Tag(models.Model):
     """ Tag to be used for a recipe """
     name = models.CharField(max_length=255)
-    users = models.ForeignKey(
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete = models.CASCADE,
     )

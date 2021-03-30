@@ -7,11 +7,25 @@ from rest_framework import status
 """ for making our api requests """
 from rest_framework.test import APIClient
 
-from core.models import Recipe
+from core.models import Recipe, Tag, Ingredient
 
-from recipe.serializers import RecipeSerializer
+from recipe.serializers import RecipeSerializer, RecipeDetailSerializer
 
 RECIPES_URL = reverse('recipe:recipe-list')
+
+
+def detail_url(recipe_id):
+    """ return recipe detail URL"""
+    """ test single argument in the URL """
+    return reverse("recipe:recipe-detail", args=[recipe_id])
+
+def sample_tag(user, name='Main course'):
+    """ create and return a sample tag"""
+    return Tag.objects.create(user=user, name=name)
+
+def sample_ingredient(user, name='Cinammon'):
+    """ create and return a sample ingredient """
+    return Ingredient.objects.create(user=user, name=name)
 
 """ any additional parameter after user will be passed in dictionary params """
 def sample_recipe(user, **params):
@@ -77,4 +91,20 @@ class PrivateRecipeApiTests(TestCase):
         serializer = RecipeSerializer(recipes, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data),1)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_view_recipe_detail(self):
+        """ test viewing a recipe detail """
+        recipe = sample_recipe(user=self.user)
+        # way adding item many to many
+        recipe.tags.add(sample_tag(user=self.user))
+        recipe.ingredients.add(sample_ingredient(user=self.user))
+
+        # return url for specific detail
+        url = detail_url(recipe.id)
+        # retrieve url
+        res = self.client.get(url)
+
+        # serialize single recipe
+        serializer = RecipeDetailSerializer(recipe)
         self.assertEqual(res.data, serializer.data)
